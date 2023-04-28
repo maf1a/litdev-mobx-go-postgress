@@ -1,4 +1,4 @@
-import { observable, action, makeObservable, computed } from 'mobx';
+import {observable, action, makeObservable, computed, runInAction} from 'mobx';
 import {ApiMain, LoadingSettings, api} from "../Api/api-main.ts";
 
 export type Task = {
@@ -42,16 +42,12 @@ class TasksStore {
 
     @action async delete(id: string) {
         const result = await this.api.deleteBool(`/task/${id}`, this.ls, null)
-        if (result) {
-            this.tasks = this.tasks.filter(t => t.id !== id)
-        }
+        if (result) runInAction(() => this.tasks = this.tasks.filter(t => t.id !== id))
     }
 
     @action async markAsDone(id: string) {
         const result = await this.api.patchBool(`/task/${id}/done`, this.ls, null)
-        if (result) {
-            this.tasks.forEach(t => t.id === id ? t.isDone = true : "")
-        }
+        if (result) runInAction(() => this.tasks.forEach(t => t.id === id ? t.isDone = true : ""))
     }
 
     @action async createTask(authorName: string, taskName: string) {
@@ -63,15 +59,13 @@ class TasksStore {
         }
 
         const result = await this.api.postJsonJson<Task>(`/task`, this.ls, payload)
-        if (result) {
-            this.tasks.push(result)
-        }
+        if (result) runInAction(() => this.tasks.push(result))
     }
 
     @action async fetchTasks() {
         const result = await this.api.getJson<Task[]>(`/task`, this.ls)
         if (result) {
-            this.tasks = result
+            runInAction(() => this.tasks = result)
             this.ls.setError(false)
         }
     }

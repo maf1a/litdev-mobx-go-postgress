@@ -9,13 +9,17 @@ export class Tasks extends MobxLitElement {
     @query('#input-author-name') inputAuthorName!: HTMLInputElement;
     @query('#input-task-name') inputTaskName!: HTMLInputElement;
 
-    onKeyDown = (e: KeyboardEvent) => e.code === "Enter" &&this.createTask()
+    onKeyDown = (e: KeyboardEvent) => e.code === "Enter" && this.createTask()
 
     createTask() {
         const author = this.inputAuthorName.value
         const title = this.inputTaskName.value
+        if (author.length < 3 || title.length < 3) {
+            return
+        }
 
         tasksStore.createTask(author, title)
+
         this.inputTaskName.value = ""
         this.inputTaskName.focus()
     }
