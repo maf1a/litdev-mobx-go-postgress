@@ -31,12 +31,12 @@ func (s *ApiService) CreateTask(authorName string, task *repository.Task) (*repo
 	}
 
 	task.AuthorID = author.ID
-	task.Author = author
 	result := s.Repo.DB.Create(task)
 	if result.Error != nil {
 		return nil, result.Error
 	}
 
+	task.Author = author
 	return task.CreateResponse(), nil
 }
 
