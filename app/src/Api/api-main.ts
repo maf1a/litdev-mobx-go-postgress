@@ -24,6 +24,7 @@ export class ApiMain {
             ls.setLoading(false)
             return text
         } catch(e) {
+            console.error(e)
             ls.setError(true)
         }
 
@@ -45,6 +46,7 @@ export class ApiMain {
             ls.setLoading(false)
             return json
         } catch(e) {
+            console.error(e)
             ls.setError(true)
         }
 
@@ -73,6 +75,7 @@ export class ApiMain {
             ls.setLoading(false)
             return json
         } catch(e) {
+            console.error(e)
             ls.setError(true)
         }
 
@@ -97,6 +100,7 @@ export class ApiMain {
             ls.setLoading(false)
             return true
         } catch(e) {
+            console.error(e)
             ls.setError(true)
         }
 

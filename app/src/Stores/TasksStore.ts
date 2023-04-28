@@ -25,13 +25,8 @@ class TasksStore {
         this.fetchTasks()
     }
 
-    @action setLoadingState(bool: boolean) {
-        this.tasksListLoading = bool
-    }
-
-    @action setErrorState(bool: boolean) {
-        this.tasksListHasError = bool
-    }
+    @action setLoadingState = (bool: boolean) => this.tasksListLoading = bool
+    @action setErrorState = (bool: boolean) => this.tasksListHasError = bool
 
     @computed get sortedTasks() {
         return this.tasks.slice().sort((a, b) => a.updatedAt - b.updatedAt)
