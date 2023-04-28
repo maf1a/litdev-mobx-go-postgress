@@ -1,4 +1,5 @@
 import { observable, action, makeObservable, computed } from 'mobx';
+import {ApiMain, LoadingSettings, api} from "../Api/api-main.ts";
 
 export type Task = {
     id: string
@@ -8,8 +9,13 @@ export type Task = {
     author: string
 }
 
-// create a mobx observable
 class TasksStore {
+    api:ApiMain = api
+    ls:LoadingSettings = {
+        setLoading: (s: boolean) => this.setLoadingState(s),
+        setError: (s: boolean) => this.setErrorState(s),
+    }
+
     @observable tasks:Task[] = [];
     @observable tasksListLoading = false;
     @observable tasksListHasError = false;
@@ -19,10 +25,16 @@ class TasksStore {
         this.fetchTasks()
     }
 
+    @action setLoadingState(bool: boolean) {
+        this.tasksListLoading = bool
+    }
+
+    @action setErrorState(bool: boolean) {
+        this.tasksListHasError = bool
+    }
+
     @computed get sortedTasks() {
-        return this.tasks.slice().sort((a, b) => {
-            return a.updatedAt - b.updatedAt
-        })
+        return this.tasks.slice().sort((a, b) => a.updatedAt - b.updatedAt)
     }
 
     @computed get tasksDone() {
@@ -34,91 +46,38 @@ class TasksStore {
     }
 
     @action async delete(id: string) {
-        try {
-            this.tasksListLoading = true
-            const response = await fetch(`http://localhost:3000/task/${id}`,{ method: "DELETE" })
-            this.tasksListLoading = false
-            if (response.status !== 200) {
-                this.tasksListHasError = true
-                console.error(await response.text())
-                return
-            }
-
-            this.tasksListHasError = false
+        const result = await this.api.deleteBool(`/task/${id}`, this.ls, null)
+        if (result) {
             this.tasks = this.tasks.filter(t => t.id !== id)
-        } catch(e) {
-            console.error(e)
-            this.tasksListHasError = true
         }
     }
 
     @action async markAsDone(id: string) {
-        try {
-            this.tasksListLoading = true
-            const response = await fetch(`http://localhost:3000/task/${id}/done`,{ method: "PATCH" })
-            this.tasksListLoading = false
-            if (response.status !== 200) {
-                this.tasksListHasError = true
-                console.error(await response.text())
-                return
-            }
-
-            this.tasksListHasError = false
+        const result = await this.api.patchBool(`/task/${id}/done`, this.ls, null)
+        if (result) {
             this.tasks.forEach(t => t.id === id ? t.isDone = true : "")
-        } catch(e) {
-            console.error(e)
-            this.tasksListHasError = true
         }
     }
 
     @action async createTask(authorName: string, taskName: string) {
-        try {
-            const payload = {
-                authorName,
-                task: {
-                    name: taskName
-                }
+        const payload = {
+            authorName,
+            task: {
+                name: taskName
             }
+        }
 
-            this.tasksListLoading = true
-            const response = await fetch("http://localhost:3000/task", {
-                method: "POST",
-                headers: {
-                    "content-type": "application/json",
-                },
-                body: JSON.stringify(payload)
-            })
-            this.tasksListLoading = false
-            if (response.status !== 200) {
-                this.tasksListHasError = true
-                console.error(await response.text())
-                return
-            }
-
-            this.tasksListHasError = false
-            this.tasks.push(await response.json())
-        } catch(e) {
-            console.error(e)
-            this.tasksListHasError = true
+        const result = await this.api.postJsonJson<Task>(`/task`, this.ls, payload)
+        if (result) {
+            this.tasks.push(result)
         }
     }
 
     @action async fetchTasks() {
-        try {
-            this.tasksListLoading = true
-            const response = await fetch("http://localhost:3000/task")
-            this.tasksListLoading = false
-            if (response.status !== 200) {
-                this.tasksListHasError = true
-                console.error(await response.text())
-                return
-            }
-
-            this.tasksListHasError = false
-            this.tasks = await response.json()
-        } catch(e) {
-            console.error(e)
-            this.tasksListHasError = true
+        const result = await this.api.getJson<Task[]>(`/task`, this.ls)
+        if (result) {
+            this.tasks = result
+            this.ls.setError(false)
         }
     }
 }

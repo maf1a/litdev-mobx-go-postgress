@@ -9,14 +9,8 @@ export class TasksList extends MobxLitElement {
     @property ({type: String}) title = ""
     @property ({type: Object}) tasks: Task[] = []
 
-    renderError() {
-        return html`<h3>There was an error. Please refresh the page</h3>`
-    }
-
     render() {
-        const { tasksListHasError, tasksListLoading} = tasksStore
-
-        if (tasksListHasError) return this.renderError()
+        const { tasksListLoading} = tasksStore
 
         return html`
             <h3>${this.title}${tasksListLoading ? "..." : ""}</h3>

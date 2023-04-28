@@ -9,23 +9,38 @@ export class Tasks extends MobxLitElement {
     @query('#input-author-name') inputAuthorName!: HTMLInputElement;
     @query('#input-task-name') inputTaskName!: HTMLInputElement;
 
+    onKeyDown = (e: KeyboardEvent) => e.code === "Enter" &&this.createTask()
+
     createTask() {
         const author = this.inputAuthorName.value
         const title = this.inputTaskName.value
 
         tasksStore.createTask(author, title)
         this.inputTaskName.value = ""
+        this.inputTaskName.focus()
+    }
+
+    renderError() {
+        return html`
+            <h3>There was an error</h3>
+            <p>
+                Please refresh the page or
+                <button @click=${() => tasksStore.fetchTasks()}> click here</button> to retry
+            </p>
+        `
     }
 
     render() {
-        const { tasksDone, tasksTodo} = tasksStore
+        const { tasksListHasError, tasksDone, tasksTodo} = tasksStore
+
+        if (tasksListHasError) return this.renderError()
 
         return html`
             <h3>Create new task</h3>
             <p>Author name:</p>
             <input id="input-author-name" type="text" placeholder="Enter author name" maxlength="255" />
             <p>Task name:</p>
-            <input id="input-task-name" type="text" placeholder="Enter task name" maxlength="255" />
+            <input id="input-task-name" @keydown=${this.onKeyDown} type="text" placeholder="Enter task name" maxlength="255" />
             <br>
             <br>
             <button @click=${this.createTask}>Create task</button>
