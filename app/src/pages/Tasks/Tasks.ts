@@ -40,14 +40,14 @@ export class Tasks extends MobxLitElement {
         if (tasksListHasError) return this.renderError()
 
         return html`
-            <h3>Create new task</h3>
+            <h2>Create new task</h2>
             <p>Author name:</p>
             <input id="input-author-name" type="text" placeholder="Enter author name" maxlength="255" />
             <p>Task name:</p>
             <input id="input-task-name" @keydown=${this.onKeyDown} type="text" placeholder="Enter task name" maxlength="255" />
             <br>
             <br>
-            <button @click=${this.createTask}>Create task</button>
+            <button @click=${this.createTask} name="create-task">Create task</button>
             
             <page-tasks-list title="Todo" .tasks=${tasksTodo}></page-tasks-list>
             <page-tasks-list title="Done" .tasks=${tasksDone}></page-tasks-list>

@@ -133,4 +133,5 @@ export class ApiMain {
     }
 }
 
-export const api = new ApiMain("http://localhost:3000")
+// export const api = new ApiMain("http://localhost:3000")
+export const api = new ApiMain("http://172.0.0.1:3000")
